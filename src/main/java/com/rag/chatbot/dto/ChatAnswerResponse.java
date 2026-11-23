@@ -1,4 +1,5 @@
 package com.rag.chatbot.dto;
 
-public class ChatAnswerResponse {
+public record ChatAnswerResponse( String question,
+                                  String answer) {
 }

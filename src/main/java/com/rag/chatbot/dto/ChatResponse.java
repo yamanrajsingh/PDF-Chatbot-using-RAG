@@ -1,4 +1,6 @@
 package com.rag.chatbot.dto;
 
-public class ChatResponse {
+import java.util.List;
+
+public record ChatResponse(String question, List<String> relevantChunks) {
 }

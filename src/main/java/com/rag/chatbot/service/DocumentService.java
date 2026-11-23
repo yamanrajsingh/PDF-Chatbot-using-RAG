@@ -16,12 +16,13 @@ public class DocumentService {
     private PdfProcessingService pdfProcessingService;
     private  ChunkingService chunkingService;
     private EmbeddingService embeddingService;
-
+    private  VectorStoreService vectorStoreService;
     // Constructor injection
-    public DocumentService(PdfProcessingService pdfProcessingService, ChunkingService chunkingService,EmbeddingService embeddingService) {
+    public DocumentService(PdfProcessingService pdfProcessingService, ChunkingService chunkingService,EmbeddingService embeddingService,VectorStoreService vectorStoreService) {
         this.pdfProcessingService = pdfProcessingService;
         this.chunkingService = chunkingService;
         this.embeddingService = embeddingService;
+        this.vectorStoreService = vectorStoreService;
     }
 
     public DocumentUploadResponse uploadDocument(MultipartFile file) {
@@ -51,17 +52,18 @@ public class DocumentService {
                 System.out.println("Chunk " + (i + 1) + ":");
                 System.out.println(chunks.get(i).getText());
             }
-            System.out.println("Pages extracted: " + documents.size());
             System.out.println("Total chunks generated: " + chunks.size());
+           // Store chunks and embeddings in PostgreSQL
+            vectorStoreService.savedChunks(chunks);
 
             // Generate embeddings for all chunks
-            List<float[]> embeddings = embeddingService.generateEmbeddings(chunks);
+//            List<float[]> embeddings = embeddingService.generateEmbeddings(chunks);
            // Print embedding information
-            System.out.println("Total embeddings: " + embeddings.size());
-            if (!embeddings.isEmpty()) {
-                System.out.println("Embedding dimensions: " + embeddings.get(0).length);
-                System.out.println("First embedding sample: " + java.util.Arrays.toString(java.util.Arrays.copyOf(embeddings.get(0), 5)));
-            }
+//            System.out.println("Total embeddings: " + embeddings.size());
+//            if (!embeddings.isEmpty()) {
+//                System.out.println("Embedding dimensions: " + embeddings.get(0).length);
+//                System.out.println("First embedding sample: " + java.util.Arrays.toString(java.util.Arrays.copyOf(embeddings.get(0), 5)));
+//            }
 
         }
         catch (IOException e) {
