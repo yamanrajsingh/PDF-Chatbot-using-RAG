@@ -1,0 +1,4 @@
+package com.rag.chatbot.dto;
+
+public class ConversationResponse {
+}

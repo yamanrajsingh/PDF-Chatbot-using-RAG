@@ -1,4 +1,5 @@
 package com.rag.chatbot.dto;
 
-public record ChatRequest(String question) {
+public record ChatRequest(String question,
+                          String documentId) {
 }

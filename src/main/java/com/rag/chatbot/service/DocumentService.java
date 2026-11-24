@@ -7,7 +7,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class DocumentService {
@@ -34,6 +37,7 @@ public class DocumentService {
         if(fileName==null || !fileName.toLowerCase().endsWith(".pdf")){
             throw  new IllegalArgumentException("Only PDF files are allowed");
         }
+        String documentId = UUID.randomUUID().toString();
 
         try{
             // extract the text from the pdf
@@ -41,6 +45,7 @@ public class DocumentService {
             // print pdf information
             int totalCharacters = documents.stream().mapToInt(doc->doc.getText().length()).sum();
             System.out.println("PDF: " + fileName);
+            System.out.println("Document ID: " + documentId);
             System.out.println("Pages extracted: " + documents.size());
             System.out.println("Total characters: " + totalCharacters);
 
@@ -48,14 +53,23 @@ public class DocumentService {
             // split extracted pdf text into smaller chunks
             List<Document> chunks = chunkingService.splitIntoChunks(documents);
             // print chunks information
-            for (int i = 0; i < Math.min(chunks.size(), 3); i++) {
-                System.out.println("Chunk " + (i + 1) + ":");
-                System.out.println(chunks.get(i).getText());
-            }
+//            for (int i = 0; i < Math.min(chunks.size(), 3); i++) {
+//                System.out.println("Chunk " + (i + 1) + ":");
+//                System.out.println(chunks.get(i).getText());
+//            }
             System.out.println("Total chunks generated: " + chunks.size());
            // Store chunks and embeddings in PostgreSQL
-            vectorStoreService.savedChunks(chunks);
 
+            // 3. Attach metadata to every chunk
+            List<Document> taggedChunks = chunks.stream().map(chunk->{
+                Map<String, Object> metaData = new HashMap<>(chunk.getMetadata());
+                metaData.put("documentId", documentId);
+                metaData.put("fileName", fileName);
+                return new Document(chunk.getText(), metaData);
+            }).toList();
+            vectorStoreService.savedChunks(taggedChunks);
+
+            System.out.println("Successfully stored document: " + documentId);
             // Generate embeddings for all chunks
 //            List<float[]> embeddings = embeddingService.generateEmbeddings(chunks);
            // Print embedding information
@@ -72,6 +86,6 @@ public class DocumentService {
             );
         }
 
-        return new DocumentUploadResponse(fileName,"PDF received successfully. Processing is not implemented yet.",true);
+        return new DocumentUploadResponse(fileName,documentId,"PDF received successfully. Processing is not implemented yet.",true);
     }
 }

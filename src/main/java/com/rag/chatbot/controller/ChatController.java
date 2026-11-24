@@ -25,7 +25,7 @@ public class ChatController {
 
     @PostMapping("/retrieve")
     public ResponseEntity<ChatResponse> retrieve(@RequestBody ChatRequest chatRequest) {
-        List<Document> documents = retrievalService.retrievalRelevantChunks(chatRequest.question());
+        List<Document> documents = retrievalService.retrievalRelevantChunks(chatRequest.question(),chatRequest.documentId());
 
         List<String> chunks = documents.stream().map(Document::getText).toList();
         ChatResponse chatResponse = new ChatResponse(chatRequest.question(), chunks);
@@ -34,7 +34,7 @@ public class ChatController {
 
     @PostMapping("/ask")
     public ResponseEntity<ChatAnswerResponse> askQuestion(@RequestBody ChatRequest chatRequest) {
-        String ans = chatService.generateAnswer(chatRequest.question());
+        String ans = chatService.generateAnswer(chatRequest.question(),chatRequest.documentId());
         ChatAnswerResponse chatAnswerResponse = new ChatAnswerResponse(chatRequest.question(), ans);
         return  ResponseEntity.ok(chatAnswerResponse);
     }

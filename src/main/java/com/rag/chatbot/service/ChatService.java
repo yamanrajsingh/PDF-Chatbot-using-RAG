@@ -20,10 +20,10 @@ public class ChatService {
         this.retrievalService = retrievalService;
     }
 
-    public String generateAnswer(String question)
+    public String generateAnswer(String question, String documentId)
     {
         // 1. Retrieve relevant chunks from PostgreSQL
-        List<Document> documents = retrievalService.retrievalRelevantChunks(question);
+        List<Document> documents = retrievalService.retrievalRelevantChunks(question,documentId);
 
         if (documents.isEmpty()) {
             return "I couldn't find relevant information in the uploaded documents.";
